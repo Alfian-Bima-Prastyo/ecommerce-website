@@ -1,4 +1,6 @@
 import Link from "next/link";
+import ChatContext from "@/components/ChatContext";
+import SuggestedQuestions from "@/components/SuggestedQuestions";
 
 async function getProduct(id: string) {
   const res = await fetch(
@@ -33,6 +35,8 @@ export default async function ProductDetailPage({
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Inject Product Context to chatbot*/}
+        <ChatContext product={product} />
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 mb-8">
         <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -139,6 +143,8 @@ export default async function ProductDetailPage({
               🤍
             </button>
           </div>
+          {/* Suggested Questions */}
+            <SuggestedQuestions productName={product.name} productId={product.product_id} />
         </div>
       </div>
     </div>
