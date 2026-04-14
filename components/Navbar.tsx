@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CartDrawer from "@/components/CartDrawer";
 
 export default function Navbar() {
   return (
@@ -25,6 +26,7 @@ export default function Navbar() {
             <Link href="/register" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
               Daftar
             </Link>
+            <CartDrawer />
           </div>
 
         </div>

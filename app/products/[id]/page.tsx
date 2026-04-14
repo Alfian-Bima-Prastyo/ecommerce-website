@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ChatContext from "@/components/ChatContext";
 import SuggestedQuestions from "@/components/SuggestedQuestions";
+import AddToCart from "@/components/AddToCart";
 
 async function getProduct(id: string) {
   const res = await fetch(
@@ -30,13 +31,11 @@ export default async function ProductDetailPage({
     );
   }
 
-  const sizes = Object.keys(product.stock);
-  const colors = [...new Set(sizes.flatMap((size) => Object.keys(product.stock[size])))] as string[];
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Inject Product Context to chatbot*/}
-        <ChatContext product={product} />
+      {/* Inject Product Context to chatbot*/}
+      <ChatContext product={product} />
+
       {/* Breadcrumb */}
       <div className="text-sm text-gray-500 mb-8">
         <Link href="/" className="hover:text-blue-600">Home</Link>
@@ -84,67 +83,11 @@ export default async function ProductDetailPage({
             </div>
           </div>
 
-          <div className="mb-4">
-            <h3 className="font-semibold text-gray-700 mb-2">Ukuran</h3>
-            <div className="flex gap-2 flex-wrap">
-              {sizes.map((size) => (
-                <span
-                  key={size}
-                  className="border border-gray-300 px-4 py-2 rounded-lg text-sm text-gray-700 hover:border-blue-500 cursor-pointer"
-                >
-                  {size}
-                </span>
-              ))}
-            </div>
-          </div>
+          {/* Add To Cart */}
+          <AddToCart product={product} />
 
-          <div className="mb-6">
-            <h3 className="font-semibold text-gray-700 mb-2">Warna</h3>
-            <div className="flex gap-2 flex-wrap">
-              {colors.map((color) => (
-                <span
-                  key={color}
-                  className="border border-gray-300 px-4 py-2 rounded-lg text-sm text-gray-700 hover:border-blue-500 cursor-pointer"
-                >
-                  {color}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Stock */}
-          <div className="mb-6">
-            <h3 className="font-semibold text-gray-700 mb-2">Stok per Varian</h3>
-            <div className="bg-gray-50 rounded-xl p-4 text-sm">
-              {sizes.map((size) => (
-                <div key={size} className="mb-2">
-                  <span className="font-medium text-gray-700">Ukuran {size}:</span>
-                  <div className="flex gap-4 mt-1 ml-4">
-                    {Object.entries(product.stock[size]).map(([color, qty]) => (
-                      <span key={color} className="text-gray-600">
-                        {color}:{" "}
-                        <span className={Number(qty) > 0 ? "text-green-600 font-medium" : "text-red-500"}>
-                          {qty as number} pcs
-                        </span>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Button */}
-          <div className="flex gap-3">
-            <button className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
-              Tambah ke Keranjang
-            </button>
-            <button className="border border-gray-300 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors">
-              🤍
-            </button>
-          </div>
           {/* Suggested Questions */}
-            <SuggestedQuestions productName={product.name} productId={product.product_id} />
+          <SuggestedQuestions productName={product.name} productId={product.product_id} />
         </div>
       </div>
     </div>
