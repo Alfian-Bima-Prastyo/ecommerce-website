@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   product: {
@@ -17,6 +19,11 @@ export default function AddToCart({ product }: Props) {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [added, setAdded] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  const { data: session } = useSession();
+  const router = useRouter();
 
   const colors = selectedSize
     ? Object.keys(product.stock[selectedSize])
@@ -28,6 +35,18 @@ export default function AddToCart({ product }: Props) {
       : null;
 
   const { addItem } = useCartStore();
+
+  // Cek apakah produk sudah di wishlist
+  useEffect(() => {
+    if (!session) return;
+    fetch("/api/wishlist")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setWishlisted(data.some((i: any) => i.productId === product.product_id));
+        }
+      });
+  }, [session, product.product_id]);
 
   const handleAdd = () => {
     if (!selectedSize || !selectedColor) return;
@@ -43,6 +62,38 @@ export default function AddToCart({ product }: Props) {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  const handleWishlist = async () => {
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+
+    setWishlistLoading(true);
+
+    if (wishlisted) {
+      await fetch("/api/wishlist", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.product_id }),
+      });
+      setWishlisted(false);
+    } else {
+      await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.product_id,
+          name: product.name,
+          price: product.price,
+          image: null,
+        }),
+      });
+      setWishlisted(true);
+    }
+
+    setWishlistLoading(false);
+  };
+
   return (
     <div>
       {/* Size */}
@@ -52,10 +103,7 @@ export default function AddToCart({ product }: Props) {
           {sizes.map((size) => (
             <button
               key={size}
-              onClick={() => {
-                setSelectedSize(size);
-                setSelectedColor("");
-              }}
+              onClick={() => { setSelectedSize(size); setSelectedColor(""); }}
               className={`border px-4 py-2 rounded-lg text-sm transition-colors ${
                 selectedSize === size
                   ? "border-blue-500 bg-blue-50 text-blue-600 font-medium"
@@ -95,14 +143,11 @@ export default function AddToCart({ product }: Props) {
         </p>
       )}
 
-      {/* Validation */}
       {(!selectedSize || !selectedColor) && (
-        <p className="text-xs text-gray-400 mb-4">
-          Pilih ukuran dan warna terlebih dahulu
-        </p>
+        <p className="text-xs text-gray-400 mb-4">Pilih ukuran dan warna terlebih dahulu</p>
       )}
 
-      {/* Button */}
+      {/* Buttons */}
       <div className="flex gap-3">
         <button
           onClick={handleAdd}
@@ -117,8 +162,18 @@ export default function AddToCart({ product }: Props) {
         >
           {added ? "✓ Ditambahkan!" : "Tambah ke Keranjang"}
         </button>
-        <button className="border border-gray-300 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors">
-          🤍
+
+        <button
+          onClick={handleWishlist}
+          disabled={wishlistLoading}
+          title={session ? (wishlisted ? "Hapus dari wishlist" : "Tambah ke wishlist") : "Login untuk wishlist"}
+          className={`border px-4 py-3 rounded-xl transition-colors text-lg ${
+            wishlisted
+              ? "border-red-300 bg-red-50 text-red-500"
+              : "border-gray-300 hover:bg-gray-50"
+          }`}
+        >
+          {wishlisted ? "❤️" : "🤍"}
         </button>
       </div>
     </div>

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const protectedRoutes = ["/profile", "/checkout", "/orders", "/admin"];
+const protectedRoutes = ["/profile", "/checkout", "/orders"];
+const adminRoutes = ["/admin"];
 const authRoutes = ["/login", "/register"];
 
 export async function middleware(req: NextRequest) {
@@ -12,11 +13,21 @@ export async function middleware(req: NextRequest) {
 
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!token;
+  const isAdmin = token?.role === "ADMIN";
   const isProtected = protectedRoutes.some((r) => pathname.startsWith(r));
+  const isAdminRoute = adminRoutes.some((r) => pathname.startsWith(r));
   const isAuthRoute = authRoutes.includes(pathname);
 
   if (isProtected && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
+
+  if (isAdminRoute && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
+
+  if (isAdminRoute && isLoggedIn && !isAdmin) {
+    return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
   if (isAuthRoute && isLoggedIn) {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import ChatContext from "@/components/ChatContext";
 import SuggestedQuestions from "@/components/SuggestedQuestions";
 import AddToCart from "@/components/AddToCart";
+import ProductReviews from "@/components/ProductReviews";
 
 async function getProduct(id: string) {
   const res = await fetch(
@@ -88,6 +89,9 @@ export default async function ProductDetailPage({
 
           {/* Suggested Questions */}
           <SuggestedQuestions productName={product.name} productId={product.product_id} />
+
+          {/* Reviews */}
+          <ProductReviews productId={product.product_id} />
         </div>
       </div>
     </div>

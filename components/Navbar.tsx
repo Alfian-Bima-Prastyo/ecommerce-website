@@ -21,6 +21,9 @@ export default function Navbar() {
             <Link href="/vouchers" className="text-gray-600 hover:text-blue-600 transition-colors">
               Voucher
             </Link>
+            <Link href="/profile" className="text-gray-600 hover:text-blue-600 transition-colors">
+              Profile
+            </Link>
             <NavbarAuth />
             <CartDrawer />
           </div>
