@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 type Review = {
   id: string;
@@ -58,23 +59,25 @@ export default function ProductReviews({ productId }: { productId: string }) {
     : null;
 
   return (
-    <div className="mt-16">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">
-        Review & Rating
+    <div>
+      {/* Header */}
+      <div className="flex items-baseline gap-3 mb-8">
         {avgRating && (
-          <span className="ml-3 text-yellow-500 text-base font-normal">
-            ⭐ {avgRating} ({reviews.length} review)
+          <span className="text-sm text-muted-foreground">
+            ★ {avgRating} · {reviews.length} review
           </span>
         )}
-      </h2>
+      </div>
 
-      {/* Form Review */}
+      {/* Form */}
       {session ? (
-        <form onSubmit={handleSubmit} className="bg-gray-50 rounded-xl p-6 mb-8">
-          <h3 className="font-semibold text-gray-700 mb-4">Tulis Review</h3>
+        <form onSubmit={handleSubmit} className="border border-border rounded-2xl p-6 mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-5">
+            Tulis Review
+          </p>
 
           {/* Star Rating */}
-          <div className="flex gap-1 mb-4">
+          <div className="flex gap-2 mb-5">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -82,13 +85,17 @@ export default function ProductReviews({ productId }: { productId: string }) {
                 onMouseEnter={() => setHovered(star)}
                 onMouseLeave={() => setHovered(0)}
                 onClick={() => setForm({ ...form, rating: star })}
-                className="text-2xl transition-transform hover:scale-110"
+                className="text-xl transition-transform hover:scale-110 leading-none"
               >
-                {star <= (hovered || form.rating) ? "⭐" : "☆"}
+                <span className={star <= (hovered || form.rating) ? "text-yellow-500" : "text-muted-foreground"}>
+                  ★
+                </span>
               </button>
             ))}
             {form.rating > 0 && (
-              <span className="ml-2 text-sm text-gray-500 self-center">{form.rating}/5</span>
+              <span className="ml-1 text-xs text-muted-foreground self-center">
+                {form.rating}/5
+              </span>
             )}
           </div>
 
@@ -97,7 +104,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
             onChange={(e) => setForm({ ...form, comment: e.target.value })}
             placeholder="Ceritakan pengalaman kamu dengan produk ini..."
             rows={3}
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-black resize-none mb-4"
+            className="w-full border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground transition-all resize-none mb-4 placeholder:text-muted-foreground"
           />
 
           {success && <p className="text-green-600 text-sm mb-3">{success}</p>}
@@ -106,36 +113,60 @@ export default function ProductReviews({ productId }: { productId: string }) {
           <button
             type="submit"
             disabled={saving}
-            className="bg-black text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50"
+            className="bg-foreground text-background px-6 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             {saving ? "Menyimpan..." : "Kirim Review"}
           </button>
         </form>
       ) : (
-        <div className="bg-gray-50 rounded-xl p-6 mb-8 text-center">
-          <p className="text-gray-500 text-sm">
-            <a href="/login" className="text-black font-medium underline">Login</a> untuk menulis review
+        <div className="border border-border rounded-2xl p-6 mb-10 text-center">
+          <p className="text-muted-foreground text-sm">
+            <Link
+              href="/login"
+              className="text-foreground font-medium underline underline-offset-4 hover:opacity-70 transition-opacity"
+            >
+              Login
+            </Link>{" "}
+            untuk menulis review
           </p>
         </div>
       )}
 
-      {/* List Review */}
+      {/* List */}
       {loading ? (
-        <p className="text-gray-400 text-sm">Memuat review...</p>
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="border border-border rounded-2xl p-5">
+              <div className="h-4 w-24 bg-secondary rounded animate-pulse mb-2" />
+              <div className="h-3 w-48 bg-secondary rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
       ) : reviews.length === 0 ? (
-        <p className="text-gray-400 text-sm">Belum ada review untuk produk ini.</p>
+        <p className="text-muted-foreground text-sm">Belum ada review untuk produk ini.</p>
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <div key={review.id} className="bg-white border border-gray-200 rounded-xl p-5">
-              <div className="flex justify-between items-start mb-2">
+            <div key={review.id} className="border border-border rounded-2xl p-5">
+              <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="font-medium text-gray-800 text-sm">{review.user.name ?? "Pengguna"}</p>
-                  <p className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</p>
+                  <p className="font-medium text-sm">{review.user.name ?? "Pengguna"}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {new Date(review.createdAt).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
                 </div>
-                <span className="text-yellow-500 text-sm">{"⭐".repeat(review.rating)}</span>
+                <span className="text-yellow-500 text-sm tracking-wider">
+                  {"★".repeat(review.rating)}
+                  <span className="text-muted-foreground">{"★".repeat(5 - review.rating)}</span>
+                </span>
               </div>
-              {review.comment && <p className="text-sm text-gray-600 mt-2">{review.comment}</p>}
+              {review.comment && (
+                <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
+              )}
             </div>
           ))}
         </div>

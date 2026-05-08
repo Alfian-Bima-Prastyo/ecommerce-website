@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useEffect, useState } from "react";
 
 type CartItem = {
   product_id: string;
@@ -73,3 +74,15 @@ export const useCartStore = create<CartStore>()(
     { name: "cart-storage" }
   )
 );
+
+// Gunakan hook ini di CartDrawer, bukan useCartStore langsung
+export function useCartStoreHydrated() {
+  const store = useCartStore();
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  return { ...store, hydrated };
+}

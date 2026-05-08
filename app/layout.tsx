@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 import Providers from "@/components/Providers";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -25,10 +26,12 @@ export default function RootLayout({
     <html lang="id" className={geist.variable}>
       <body className="min-h-screen bg-gray-50 font-sans flex flex-col">
         <Providers>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <ChatWidget />
+          <TooltipProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <ChatWidget />
+          </TooltipProvider>
         </Providers>
       </body>
     </html>

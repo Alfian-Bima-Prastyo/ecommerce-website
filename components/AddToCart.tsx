@@ -24,6 +24,7 @@ export default function AddToCart({ product }: Props) {
 
   const { data: session } = useSession();
   const router = useRouter();
+  const { addItem } = useCartStore();
 
   const colors = selectedSize
     ? Object.keys(product.stock[selectedSize])
@@ -34,9 +35,6 @@ export default function AddToCart({ product }: Props) {
       ? product.stock[selectedSize][selectedColor]
       : null;
 
-  const { addItem } = useCartStore();
-
-  // Cek apakah produk sudah di wishlist
   useEffect(() => {
     if (!session) return;
     fetch("/api/wishlist")
@@ -63,13 +61,8 @@ export default function AddToCart({ product }: Props) {
   };
 
   const handleWishlist = async () => {
-    if (!session) {
-      router.push("/login");
-      return;
-    }
-
+    if (!session) { router.push("/login"); return; }
     setWishlistLoading(true);
-
     if (wishlisted) {
       await fetch("/api/wishlist", {
         method: "DELETE",
@@ -90,24 +83,25 @@ export default function AddToCart({ product }: Props) {
       });
       setWishlisted(true);
     }
-
     setWishlistLoading(false);
   };
 
   return (
     <div>
       {/* Size */}
-      <div className="mb-4">
-        <h3 className="font-semibold text-gray-700 mb-2">Ukuran</h3>
+      <div className="mb-5">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+          Ukuran
+        </p>
         <div className="flex gap-2 flex-wrap">
           {sizes.map((size) => (
             <button
               key={size}
               onClick={() => { setSelectedSize(size); setSelectedColor(""); }}
-              className={`border px-4 py-2 rounded-lg text-sm transition-colors ${
+              className={`border px-4 py-2 rounded-full text-sm transition-colors ${
                 selectedSize === size
-                  ? "border-blue-500 bg-blue-50 text-blue-600 font-medium"
-                  : "border-gray-300 text-gray-700 hover:border-blue-400"
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
               }`}
             >
               {size}
@@ -117,17 +111,19 @@ export default function AddToCart({ product }: Props) {
       </div>
 
       {/* Color */}
-      <div className="mb-4">
-        <h3 className="font-semibold text-gray-700 mb-2">Warna</h3>
+      <div className="mb-5">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">
+          Warna
+        </p>
         <div className="flex gap-2 flex-wrap">
           {colors.map((color) => (
             <button
               key={color}
               onClick={() => setSelectedColor(color)}
-              className={`border px-4 py-2 rounded-lg text-sm transition-colors ${
+              className={`border px-4 py-2 rounded-full text-sm transition-colors ${
                 selectedColor === color
-                  ? "border-blue-500 bg-blue-50 text-blue-600 font-medium"
-                  : "border-gray-300 text-gray-700 hover:border-blue-400"
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
               }`}
             >
               {color}
@@ -138,26 +134,28 @@ export default function AddToCart({ product }: Props) {
 
       {/* Stock Info */}
       {stock !== null && (
-        <p className={`text-sm mb-4 ${stock > 0 ? "text-green-600" : "text-red-500"}`}>
+        <p className={`text-xs mb-4 ${stock > 0 ? "text-green-600" : "text-red-500"}`}>
           {stock > 0 ? `Stok tersedia: ${stock} pcs` : "Stok habis"}
         </p>
       )}
 
       {(!selectedSize || !selectedColor) && (
-        <p className="text-xs text-gray-400 mb-4">Pilih ukuran dan warna terlebih dahulu</p>
+        <p className="text-xs text-muted-foreground mb-4">
+          Pilih ukuran dan warna terlebih dahulu
+        </p>
       )}
 
       {/* Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 mt-2">
         <button
           onClick={handleAdd}
           disabled={!selectedSize || !selectedColor || stock === 0}
-          className={`flex-1 py-3 rounded-xl font-semibold transition-colors ${
+          className={`flex-1 py-3 rounded-full text-sm font-semibold transition-all ${
             added
-              ? "bg-green-500 text-white"
+              ? "bg-green-600 text-white"
               : !selectedSize || !selectedColor || stock === 0
-              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
+              ? "bg-secondary text-muted-foreground cursor-not-allowed"
+              : "bg-foreground text-background hover:opacity-90"
           }`}
         >
           {added ? "✓ Ditambahkan!" : "Tambah ke Keranjang"}
@@ -166,14 +164,18 @@ export default function AddToCart({ product }: Props) {
         <button
           onClick={handleWishlist}
           disabled={wishlistLoading}
-          title={session ? (wishlisted ? "Hapus dari wishlist" : "Tambah ke wishlist") : "Login untuk wishlist"}
-          className={`border px-4 py-3 rounded-xl transition-colors text-lg ${
-            wishlisted
-              ? "border-red-300 bg-red-50 text-red-500"
-              : "border-gray-300 hover:bg-gray-50"
-          }`}
+          title={
+            session
+              ? wishlisted ? "Hapus dari wishlist" : "Tambah ke wishlist"
+              : "Login untuk wishlist"
+          }
+        className={`border px-4 py-3 rounded-full transition-colors text-base ${
+          wishlisted
+            ? "border-red-500 text-red-500"
+            : "border-border text-muted-foreground hover:border-red-400 hover:text-red-400"
+        }`}
         >
-          {wishlisted ? "❤️" : "🤍"}
+          {wishlisted ? "♥" : "♡"}
         </button>
       </div>
     </div>

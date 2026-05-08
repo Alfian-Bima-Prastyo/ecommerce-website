@@ -13,85 +13,100 @@ export default async function VouchersPage() {
   const activeVouchers = vouchers.filter((v: any) => v.is_active);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
+    <main>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Voucher Aktif</h1>
-        <p className="text-gray-500 mt-1">{activeVouchers.length} voucher tersedia</p>
-      </div>
+      <section className="border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-3">
+            Promo
+          </p>
+          <div className="flex items-end justify-between">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
+              Voucher Aktif
+            </h1>
+            <p className="text-muted-foreground text-sm hidden sm:block">
+              {activeVouchers.length} voucher tersedia
+            </p>
+          </div>
+        </div>
+      </section>
 
-      {/* Voucher Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {activeVouchers.map((voucher: any) => {
-          const sisa = voucher.quota - voucher.used;
-          const persenTerpakai = Math.round((voucher.used / voucher.quota) * 100);
+      {/* Grid */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {activeVouchers.map((voucher: any) => {
+            const sisa = voucher.quota - voucher.used;
+            const persenTerpakai = Math.round((voucher.used / voucher.quota) * 100);
 
-          return (
-            <div
-              key={voucher.code}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden"
-            >
-              {/* Header Voucher */}
-              <div className="bg-orange-500 px-6 py-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-white font-bold text-xl">
-                    {voucher.discount.type === "persen"
-                      ? `${voucher.discount.value}% OFF`
-                      : `Rp ${voucher.discount.value.toLocaleString("id-ID")}`}
-                  </span>
-                  <span className="bg-white text-orange-500 text-xs font-bold px-2 py-1 rounded">
-                    {voucher.code}
-                  </span>
-                </div>
-              </div>
-
-              {/* Voucher Body */}
-              <div className="px-6 py-4">
-                <p className="text-gray-700 text-sm mb-3">{voucher.description}</p>
-
-                <div className="space-y-1 text-xs text-gray-500 mb-4">
-                  <p>
-                    Min. pembelian:{" "}
-                    <span className="font-medium text-gray-700">
-                      Rp {voucher.min_purchase.toLocaleString("id-ID")}
+            return (
+              <div
+                key={voucher.code}
+                className="border border-border rounded-2xl overflow-hidden bg-background"
+              >
+                {/* Top */}
+                <div className="px-6 py-5" style={{ backgroundColor: "#D9CFC4", color: "#1a1a1a" }}>
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-2xl tracking-tight">
+                      {voucher.discount.type === "persen"
+                        ? `${voucher.discount.value}% OFF`
+                        : `Rp ${voucher.discount.value.toLocaleString("id-ID")}`}
                     </span>
-                  </p>
-                  <p>
-                    Berlaku hingga:{" "}
-                    <span className="font-medium text-gray-700">
-                      {new Date(voucher.valid_until).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                    {/* <span className="bg-background text-foreground text-xs font-bold px-3 py-1 rounded-full font-mono"> */}
+                    <span className="text-xs font-bold px-3 py-1 rounded-full font-mono" style={{ backgroundColor: "#ffffff", color: "#1a1a1a" }}>
+                      {voucher.code}
                     </span>
-                  </p>
-                  <p>
-                    Sisa kuota:{" "}
-                    <span className="font-medium text-gray-700">
-                      {sisa} dari {voucher.quota}
-                    </span>
-                  </p>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mb-4">
-                  <div className="bg-gray-100 rounded-full h-2">
-                    <div
-                      className="bg-orange-500 h-2 rounded-full"
-                      style={{ width: `${persenTerpakai}%` }}
-                    />
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">{persenTerpakai}% kuota terpakai</p>
                 </div>
 
-                {/* Copy Button */}
-                <CopyButton code={voucher.code} />
+                {/* Body */}
+                <div className="px-6 py-5">
+                  <p className="text-sm mb-4 leading-relaxed">{voucher.description}</p>
+
+                  <div className="space-y-1.5 text-xs text-muted-foreground mb-5">
+                    <p>
+                      Min. pembelian:{" "}
+                      <span className="font-medium text-foreground">
+                        Rp {voucher.min_purchase.toLocaleString("id-ID")}
+                      </span>
+                    </p>
+                    <p>
+                      Berlaku hingga:{" "}
+                      <span className="font-medium text-foreground">
+                        {new Date(voucher.valid_until).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </p>
+                    <p>
+                      Sisa kuota:{" "}
+                      <span className="font-medium text-foreground">
+                        {sisa} dari {voucher.quota}
+                      </span>
+                    </p>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mb-5">
+                    <div className="bg-secondary rounded-full h-1.5">
+                      <div
+                        className="bg-foreground h-1.5 rounded-full transition-all"
+                        style={{ width: `${persenTerpakai}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      {persenTerpakai}% kuota terpakai
+                    </p>
+                  </div>
+
+                  <CopyButton code={voucher.code} />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+            );
+          })}
+        </div>
+      </section>
+    </main>
   );
 }

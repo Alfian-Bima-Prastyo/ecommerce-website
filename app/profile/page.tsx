@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import ProfileNav from "@/components/ProfileNav";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -41,58 +41,76 @@ export default function ProfilePage() {
     });
 
     setSaving(false);
-
-    if (res.ok) {
-      setSuccess("Profil berhasil disimpan");
-    } else {
-      setError("Gagal menyimpan profil");
-    }
+    if (res.ok) setSuccess("Profil berhasil disimpan");
+    else setError("Gagal menyimpan profil");
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Memuat...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="h-8 w-48 bg-secondary rounded animate-pulse mb-4" />
+        <div className="h-4 w-32 bg-secondary rounded animate-pulse" />
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">Profil Saya</h1>
-      <p className="text-gray-500 mb-8">{session?.user?.email}</p>
-
-      {/* Nav */}
-      <div className="flex gap-2 mb-8 flex-wrap">
-        <span className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium">Profil</span>
-        <Link href="/profile/password" className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Ganti Password</Link>
-        <Link href="/profile/wishlist" className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Wishlist</Link>
-        <Link href="/profile/reviews" className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Review Saya</Link>
-        <Link href="/orders" className="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">Riwayat Pesanan</Link>
-      </div>
-
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-          <input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-black"
-          />
+    <main>
+      {/* Header */}
+      <section className="border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-3">
+            Akun
+          </p>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">Profil Saya</h1>
+          <p className="text-muted-foreground text-sm mt-2">{session?.user?.email}</p>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Default</label>
-          <textarea
-            value={form.address}
-            onChange={(e) => setForm({ ...form, address: e.target.value })}
-            rows={3}
-            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-black resize-none"
-          />
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <ProfileNav />
+
+        <div className="max-w-lg">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-8">
+            Informasi Akun
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+                Nama
+              </label>
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+                Alamat Default
+              </label>
+              <textarea
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                rows={3}
+                className="w-full border border-border rounded-xl px-4 py-3 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground transition-all resize-none"
+              />
+            </div>
+
+            {success && <p className="text-green-600 text-sm">{success}</p>}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full bg-foreground text-background py-3 rounded-full font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {saving ? "Menyimpan..." : "Simpan Perubahan"}
+            </button>
+          </form>
         </div>
-        {success && <p className="text-green-600 text-sm">{success}</p>}
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full bg-black text-white py-2.5 rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50"
-        >
-          {saving ? "Menyimpan..." : "Simpan Perubahan"}
-        </button>
-      </form>
-    </div>
+      </section>
+    </main>
   );
 }

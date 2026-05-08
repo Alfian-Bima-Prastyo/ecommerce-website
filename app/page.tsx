@@ -1,4 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
+import { Suspense } from "react";
+import { getProductImage } from "@/lib/productImages";
+
 
 async function getFeaturedProducts() {
   const res = await fetch(
@@ -8,115 +12,282 @@ async function getFeaturedProducts() {
   return res.json();
 }
 
-export default async function Home() {
+function ProductGridSkeleton() {
+  return (
+    <section className="max-w-[1800px] mx-auto px-8 py-16 sm:py-24">
+      <div className="flex items-end justify-between mb-12">
+        <div>
+          <div className="h-8 w-48 bg-secondary rounded animate-pulse" />
+          <div className="mt-2 h-5 w-64 bg-secondary rounded animate-pulse" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i}>
+            <div className="aspect-square bg-secondary rounded-2xl mb-4 animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-5 w-3/4 bg-secondary rounded animate-pulse" />
+              <div className="h-5 w-1/4 bg-secondary rounded animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+async function FeaturedProducts() {
   const products = await getFeaturedProducts();
-  const featured = products.slice(0, 4);
+  const featured = products.slice(0, 6);
 
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="bg-blue-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">
-            Belanja Fashion Terlengkap
-          </h1>
-          <p className="text-blue-100 text-lg mb-8">
-            Temukan produk fashion terbaik dengan harga terjangkau
-          </p>
-          <Link
-            href="/products"
-            className="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-50 transition-colors"
-          >
-            Lihat Semua Produk
-          </Link>
-        </div>
-      </section>
-
-      {/* Agentic RAG Section */}
-      <section className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="inline-block bg-blue-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-            AI POWERED
-          </div>
-          <h2 className="text-2xl font-bold mb-3">
-            Didukung Agentic RAG Customer Service
+    <section className="max-w-[1800px] mx-auto px-8 py-16 sm:py-24">
+      <div className="flex items-end justify-between mb-12">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Featured Products
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto mb-6">
-            Chatbot AI kami menggunakan 5 agent cerdas — FAQ, Produk, Order,
-            Promo, dan Eskalasi — untuk menjawab pertanyaanmu secara akurat dan
-            real-time.
+          <p className="mt-2 text-muted-foreground">
+            Pilihan terbaik untuk kamu
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {["FAQ Agent", "Product Agent", "Order Agent", "Promo Agent", "Escalation Agent"].map(
-              (agent) => (
-                <span
-                  key={agent}
-                  className="bg-gray-800 text-gray-300 px-4 py-2 rounded-full text-sm"
-                >
-                  {agent}
-                </span>
-              )
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-800">Produk Unggulan</h2>
-          <Link href="/products" className="text-blue-600 hover:underline">
-            Lihat semua →
-          </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featured.map((product: any) => (
+        <Link
+          href="/products"
+          className="text-sm font-medium underline underline-offset-4 hover:opacity-70 transition-opacity"
+        >
+          View all
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {featured.map((product: any) => {
+          const imageSrc = getProductImage(product.product_id);
+          const hasImage = imageSrc !== "/images/placeholder.png";
+
+          return (
             <Link
               key={product.product_id}
               href={`/products/${product.product_id}`}
-              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow"
+              className="group"
             >
-              {/* Placeholder Image */}
-              <div className="bg-gray-100 rounded-lg h-40 flex items-center justify-center mb-4">
-                <span className="text-gray-400 text-sm">{product.category}</span>
+              <div className="aspect-square bg-secondary rounded-2xl mb-4 overflow-hidden relative group-hover:opacity-90 transition-opacity">
+                {hasImage ? (
+                  <Image
+                    src={imageSrc}
+                    alt={product.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-muted-foreground text-sm font-medium uppercase tracking-widest">
+                      {product.category}
+                    </span>
+                  </div>
+                )}
               </div>
 
-              <h3 className="font-semibold text-gray-800 text-sm mb-1 line-clamp-2">
-                {product.name}
-              </h3>
-              <p className="text-xs text-gray-500 mb-2">{product.seller}</p>
+              <div className="space-y-1">
+                <div className="flex justify-between items-start gap-2">
+                  <h3 className="font-medium text-sm leading-snug line-clamp-2 group-hover:underline underline-offset-2">
+                    {product.name}
+                  </h3>
 
-              <div className="flex justify-between items-center">
-                <span className="text-blue-600 font-bold">
-                  Rp {product.price.toLocaleString("id-ID")}
-                </span>
-                <span className="text-yellow-500 text-sm">
-                  ⭐ {product.rating}
-                </span>
+                  <span className="font-semibold text-sm whitespace-nowrap">
+                    Rp {product.price.toLocaleString("id-ID")}
+                  </span>
+                </div>
+
+                <p className="text-muted-foreground text-xs">
+                  {product.seller}
+                </p>
               </div>
             </Link>
-          ))}
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+export default function Home() {
+  return (
+    <main>
+      {/* HERO */}
+      <section className="w-full pt-6 pb-0 sm:pt-6 sm:pb-0">
+        <div className="max-w-[1800px] mx-auto px-8">
+
+          <div className="relative w-full aspect-[16/6.5] overflow-hidden rounded-3xl">
+
+            <Image
+              src="/img/hero.png"
+              alt="Hero fashion"
+              fill
+              priority
+              className="object-cover object-[center_65%]"
+            />
+
+            {/* Content */}
+            <div className="absolute inset-0 flex items-center">
+
+              <div className="px-12 max-w-2xl font-sans">
+
+                {/* Label */}
+                <p className="font-sans text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-6 drop-shadow-sm">
+                  NEW COLLECTION 2025
+                </p>
+
+                {/* Title */}
+                <h1 className="font-sans text-5xl sm:text-6xl md:text-7xl font-semibold tracking-tight leading-[1.05] mb-8 text-black drop-shadow-md">
+                  Fashion <br /> for Everyone
+                </h1>
+
+                {/* Buttons */}
+                <div className="flex gap-4 flex-wrap">
+
+                  <Link
+                    href="/products"
+                    className="font-sans bg-primary text-primary-foreground px-8 py-3 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    Shop Now
+                  </Link>
+
+                  <Link
+                    href="/vouchers"
+                    className="font-sans border border-border text-foreground px-8 py-3 rounded-full text-sm font-semibold hover:bg-secondary transition-colors"
+                  >
+                    Lihat Voucher
+                  </Link>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
       </section>
 
-      {/* Voucher CTA */}
-      <section className="bg-orange-50 border-t border-orange-100 py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Hemat Lebih Banyak dengan Voucher
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Tersedia 20+ voucher aktif dengan diskon hingga 50%
-          </p>
-          <Link
-            href="/vouchers"
-            className="bg-orange-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-orange-600 transition-colors"
-          >
-            Lihat Voucher
-          </Link>
+      {/* FEATURED */}
+      <Suspense fallback={<ProductGridSkeleton />}>
+        <FeaturedProducts />
+      </Suspense>
+
+      {/* COLLECTIONS */}
+      {/* <section className="max-w-[1800px] mx-auto px-8 py-16 sm:py-24"> */}
+      <section className="max-w-[1800px] mx-auto px-8 pt-0 pb-8 sm:pt-6 sm:pb-0">
+
+        {/* HEADER */}
+        <div className="flex items-end justify-between mb-12">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Collections
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              Pilih kategori sesuai gaya kamu
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          {/* Collection 1 */}
+          <div className="relative group overflow-hidden rounded-3xl">
+            <Image
+              src="/img/collections_1.png"
+              alt="Style & Fashion"
+              width={900}
+              height={600}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+
+            <div className="absolute bottom-6 left-6 text-white">
+              <h3 className="text-xl font-semibold">Style & Fashion</h3>
+              <p className="text-sm opacity-80">
+                Temukan gaya fashion terbaik kamu
+              </p>
+            </div>
+          </div>
+
+          {/* Collection 2 */}
+          <div className="relative group overflow-hidden rounded-3xl">
+            <Image
+              src="/img/collections_2.png"
+              alt="Lifestyle & Perks"
+              width={900}
+              height={600}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+
+            <div className="absolute bottom-6 left-6 text-white">
+              <h3 className="text-xl font-semibold">Lifestyle & Essentials</h3>
+              <p className="text-sm opacity-80">
+                The most stylish accessories out there
+              </p>
+            </div>
+          </div>
+
         </div>
       </section>
-    </div>
+
+      {/* ABOUT */}
+      {/* <section className="border-t border-border">
+        <div className="max-w-[1800px] mx-auto px-8 py-24">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+
+            <div>
+
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground mb-4">
+                AI Powered
+              </p>
+
+              <h2 className="text-3xl font-bold tracking-tight">
+                Customer Service <br /> yang Cerdas
+              </h2>
+
+              <p className="text-muted-foreground leading-relaxed mb-8">
+                Didukung Agentic RAG dengan 5 agent spesialis yang bekerja bersama
+                untuk menjawab pertanyaan kamu secara akurat dan real-time, 24/7.
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "FAQ Agent",
+                  "Product Agent",
+                  "Order Agent",
+                  "Promo Agent",
+                  "Escalation Agent"
+                ].map((agent) => (
+                  <span
+                    key={agent}
+                    className="bg-secondary text-foreground text-xs font-medium px-3 py-1.5 rounded-full"
+                  >
+                    {agent}
+                  </span>
+                ))}
+              </div>
+
+            </div>
+
+            <div className="bg-secondary border border-border rounded-3xl aspect-square flex items-center justify-center">
+              <p className="text-muted-foreground text-sm">
+                AI Assistant
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section> */}
+
+    </main>
   );
 }

@@ -21,12 +21,6 @@ export default function SuggestedQuestions({ productName, productId }: Props) {
 
   return (
     <div className="mt-8 border-t border-gray-100 pt-6">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-blue-600">🤖</span>
-        <h3 className="font-semibold text-gray-700 text-sm">
-          Tanya AI tentang produk ini
-        </h3>
-      </div>
       <div className="flex flex-wrap gap-2">
         {questions(productName).map((q) => (
           <button

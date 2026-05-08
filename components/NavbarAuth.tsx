@@ -7,21 +7,21 @@ export default function NavbarAuth() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return <div className="w-24 h-8 bg-gray-100 rounded animate-pulse" />;
+    return <div className="w-16 h-4 bg-secondary rounded animate-pulse" />;
   }
 
   if (session) {
     return (
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-5">
         <Link
           href="/profile"
-          className="text-gray-600 hover:text-blue-600 transition-colors text-sm"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          👤 {session.user?.name ?? session.user?.email}
+          {session.user?.name ?? session.user?.email}
         </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="text-sm text-red-500 hover:text-red-600 transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           Logout
         </button>
@@ -30,18 +30,18 @@ export default function NavbarAuth() {
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-5">
       <Link
         href="/login"
-        className="text-gray-600 hover:text-blue-600 transition-colors"
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         Login
       </Link>
       <Link
         href="/register"
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+        className="bg-foreground text-background text-sm px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
       >
-        Daftar
+        Register
       </Link>
     </div>
   );

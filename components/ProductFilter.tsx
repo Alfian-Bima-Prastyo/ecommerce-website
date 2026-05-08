@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
+import { getProductImage } from "@/lib/productImages";
 
 type Product = {
   product_id: string;
@@ -12,6 +14,8 @@ type Product = {
   category: string;
   stock: Record<string, Record<string, number>>;
 };
+
+  
 
 export default function ProductFilter({ products }: { products: Product[] }) {
   const [search, setSearch] = useState("");
@@ -34,18 +38,18 @@ export default function ProductFilter({ products }: { products: Product[] }) {
   return (
     <div>
       {/* Search & Filter */}
-      <div className="flex flex-wrap gap-3 mb-8">
+      <div className="flex flex-wrap gap-3 mb-10">
         <input
           type="text"
           placeholder="Cari produk..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 bg-white flex-1 min-w-48 focus:outline-none focus:border-blue-400"
+          className="border border-border rounded-full px-5 py-2.5 text-sm bg-background flex-1 min-w-48 focus:outline-none focus:ring-1 focus:ring-foreground transition-all placeholder:text-muted-foreground"
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 bg-white"
+          className="border border-border rounded-full px-5 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground text-foreground"
         >
           <option value="">Semua Kategori</option>
           <option value="kaos">Kaos</option>
@@ -57,7 +61,7 @@ export default function ProductFilter({ products }: { products: Product[] }) {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 bg-white"
+          className="border border-border rounded-full px-5 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-foreground text-foreground"
         >
           <option value="">Urutkan</option>
           <option value="price-asc">Harga Terendah</option>
@@ -66,40 +70,65 @@ export default function ProductFilter({ products }: { products: Product[] }) {
         </select>
       </div>
 
-      {/* Hasil */}
-      <p className="text-sm text-gray-500 mb-4">{filtered.length} produk ditemukan</p>
+      {/* Count */}
+      <p className="text-xs text-muted-foreground mb-8 tracking-wide">
+        {filtered.length} produk ditemukan
+      </p>
 
-      {/* Product Grid */}
+      {/* Empty State */}
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">
-          <p className="text-4xl mb-3">🔍</p>
-          <p>Produk tidak ditemukan</p>
+        <div className="text-center py-32">
+          <p className="text-muted-foreground text-sm">Produk tidak ditemukan</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map((product) => (
-            <Link
-              key={product.product_id}
-              href={`/products/${product.product_id}`}
-              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow"
-            >
-              <div className="bg-gray-100 rounded-lg h-40 flex items-center justify-center mb-4">
-                <span className="text-gray-400 text-sm text-center px-2">
-                  {product.category}
-                </span>
-              </div>
-              <h3 className="font-semibold text-gray-800 text-sm mb-1 line-clamp-2">
-                {product.name}
-              </h3>
-              <p className="text-xs text-gray-500 mb-3">{product.seller}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-blue-600 font-bold">
-                  Rp {product.price.toLocaleString("id-ID")}
-                </span>
-                <span className="text-yellow-500 text-sm">⭐ {product.rating}</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filtered.map((product) => {
+            const imageSrc = getProductImage(product.product_id); 
+            const hasImage = imageSrc !== "/img/placeholder.png"; 
+
+            return (
+              <Link
+                key={product.product_id}
+                href={`/products/${product.product_id}`}
+                className="group"
+              >
+              {/* Image */}
+              
+              <div className="aspect-square bg-secondary rounded-2xl mb-4 overflow-hidden group-hover:opacity-90 transition-opacity relative"> {/* tambah relative */}
+                  {hasImage ? (
+                    <Image
+                      src={imageSrc}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-muted-foreground text-xs font-medium uppercase tracking-widest">
+                        {product.category}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+              {/* Info */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-start gap-2">
+                  <h3 className="font-medium text-sm leading-snug line-clamp-2 group-hover:underline underline-offset-2">
+                    {product.name}
+                  </h3>
+                  <span className="font-semibold text-sm whitespace-nowrap">
+                    Rp {product.price.toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-muted-foreground text-xs">{product.seller}</p>
+                  {/* <p className="text-muted-foreground text-xs">⭐ {product.rating}</p> */}
+                </div>
               </div>
             </Link>
-          ))}
+            );  
+          })}  
         </div>
       )}
     </div>
